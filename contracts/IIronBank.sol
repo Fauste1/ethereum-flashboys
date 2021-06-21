@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
 
 interface IIronBank {
-    function debtOf(address debtor) external view returns (uint debt);
     function depositCollateral(uint amount) external;
     function depositCollateralFrom(address depositor, uint amount) external;
     function availableCredit(address debtor) external view returns (uint);

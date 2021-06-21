@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
 
 import './IDummyToken.sol';
@@ -13,7 +15,7 @@ contract Exchange is IDummyExchange {
         collateralToken = IDummyToken(collateralTokenContract_);
     }
     
-    // mock arbitrage opportunity giving sender 2 dummy tokens for each collateral token sent
+    // mock arbitrage opportunity giving sender 2 dummy tokens for each collateral token traded
     function arbitrageOpportunity(uint amountIn) external override {
         collateralToken.transferFrom(msg.sender, address(this), amountIn);
         
@@ -22,6 +24,8 @@ contract Exchange is IDummyExchange {
         dummyToken.transfer(msg.sender, amountOut);
     }
     
+    // mock arbitrage opportunity triggered via allowance
+    // gives owner 2 dummy tokens for each collateral token traded
     function arbitrageOpportunityFrom(address owner, uint amountIn) external override {
         collateralToken.transferFrom(owner, address(this), amountIn);
         
