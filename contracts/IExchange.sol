@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IDummyExchange {
+interface IExchange {
     
     // mock arbitrage opportunity
     // gives msg.sender 2 dummy tokens for each collateral token traded

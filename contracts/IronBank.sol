@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import './IDummyToken.sol';
 import './IIronBank.sol';
-import './IDummyExchange.sol';
 import './IMyFlashloan.sol';
 
 contract IronBank is IIronBank {
@@ -12,20 +11,15 @@ contract IronBank is IIronBank {
     mapping(address => uint) internal _availableCredit;
     IDummyToken     dummyToken;
     IDummyToken     collateralToken;
-    IDummyExchange  exchange;
     IMyFlashloan    flashloan;
     
     
     constructor(
         address dummyTokenContract_,
-        address collateralTokenContract_,
-        address exchangeContract_,
-        address flashloanContract_
+        address collateralTokenContract_
     ) {
         dummyToken = IDummyToken(dummyTokenContract_);
         collateralToken = IDummyToken(collateralTokenContract_);
-        exchange = IDummyExchange(exchangeContract_);
-        flashloan = IMyFlashloan(flashloanContract_);
     }
     
     
@@ -99,9 +93,13 @@ contract IronBank is IIronBank {
     
     // FLASHLOANS
     
-    function flashloanOperation(uint amount) external {
-        // temporarily grants the caller an extra available credit
+    function flashloanOperation(address flashloanContract, uint amount) external {
+        // initiate the flashloan contract instance
+        flashloan = IMyFlashloan(flashloanContract);
+        
+        // temporarily grants the caller an extra available credit for the flashloan accounting purposes
         _availableCredit[msg.sender] += amount;
+        
         // flash borrow dummyToken without the need for a collateral deposit
         _borrow(msg.sender, amount);
         

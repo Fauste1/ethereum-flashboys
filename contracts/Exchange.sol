@@ -3,9 +3,9 @@
 pragma solidity ^0.8.0;
 
 import './IDummyToken.sol';
-import './IDummyExchange.sol';
+import './IExchange.sol';
 
-contract Exchange is IDummyExchange {
+contract Exchange is IExchange {
     
     IDummyToken dummyToken;
     IDummyToken collateralToken;
