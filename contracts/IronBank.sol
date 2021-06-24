@@ -12,7 +12,9 @@ contract IronBank is IIronBank {
     IDummyToken     dummyToken;
     IDummyToken     collateralToken;
     IMyFlashloan    flashloan;
+    uint            flashloanFeePercentage = 2;
     
+    // todo implement a flashloan fee
     
     constructor(
         address dummyTokenContract_,
@@ -91,13 +93,15 @@ contract IronBank is IIronBank {
         _withdrawCollateral(depositor, amount);
     }
     
+
     // FLASHLOANS
     
     function flashloanOperation(address flashloanContract, uint amount) external {
+        
         // initiate the flashloan contract instance
         flashloan = IMyFlashloan(flashloanContract);
         
-        // temporarily grants the caller an extra available credit for the flashloan accounting purposes
+        // temporarily grants the caller extra available credit for the flashloan accounting purposes
         _availableCredit[msg.sender] += amount;
         
         // flash borrow dummyToken without the need for a collateral deposit
@@ -106,8 +110,9 @@ contract IronBank is IIronBank {
         // execute the custom trading strategy
         flashloan.tradingStrategy(msg.sender, amount);
         
-        // repay the entire borrowed amount
-        _repay(msg.sender, amount);
+        // repay the entire borrowed amount plus a fee
+        uint flashloanRepaymentAmount = amount * flashloanFeePercentage / 100;
+        _repay(msg.sender, flashloanRepaymentAmount);
         
         // Make sure the flashloan caller doesn't leave behind bad debt
         require(_availableCredit[msg.sender] >= 0, "Haven't paid back enough");
@@ -129,7 +134,13 @@ contract IronBank is IIronBank {
     }
     
     // Internal function to handle loan issuance
+    // function _borrow(address _borrower, uint _amount) internal {
+    //     _availableCredit[_borrower] -= _amount;
+    //     dummyToken.transfer(_borrower, _amount);
+    // }
+    
     function _borrow(address _borrower, uint _amount) internal {
+        // reduce the amount of available collateral
         _availableCredit[_borrower] -= _amount;
         dummyToken.transfer(_borrower, _amount);
     }
@@ -139,7 +150,7 @@ contract IronBank is IIronBank {
         dummyToken.transferFrom(_debtor, address(this), _amount);
         
         // free up the repaid amount for further borrowing
-        _availableCredit[_debtor] += _amount;
+        _availableCredit[_debtor] += _amount;   
     }
     
     function _withdrawCollateral(address _depositor, uint _amount) internal {
