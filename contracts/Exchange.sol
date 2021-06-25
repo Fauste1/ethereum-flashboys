@@ -2,67 +2,73 @@
 
 pragma solidity ^0.8.0;
 
-import './IDummyToken.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import './IExchange.sol';
+
+/**
+* TODO: Incorporate a trading fee
+*/
 
 contract Exchange is IExchange {
     
-    IDummyToken dummyToken;
-    IDummyToken collateralToken;
+    IERC20 dToken; // dummy token for trading purposes
+    IERC20 cToken; // dummy token for collateral purposes
     
-    constructor(address dummyTokenContract_, address collateralTokenContract_) {
-        dummyToken = IDummyToken(dummyTokenContract_);
-        collateralToken = IDummyToken(collateralTokenContract_);
+    constructor(address dTokenContract_, address cTokenContract_) {
+        dToken = IERC20(dTokenContract_);
+        cToken = IERC20(cTokenContract_);
     }
     
     // mock arbitrage opportunity giving sender 2 dummy tokens for each collateral token traded
     function arbitrageOpportunity(uint amountIn) external override {
-        collateralToken.transferFrom(msg.sender, address(this), amountIn);
+        cToken.transferFrom(msg.sender, address(this), amountIn);
         
         uint amountOut = amountIn * 2;
         
-        dummyToken.transfer(msg.sender, amountOut);
+        dToken.transfer(msg.sender, amountOut);
     }
     
     // mock arbitrage opportunity triggered via allowance
     // gives owner 2 dummy tokens for each collateral token traded
     function arbitrageOpportunityFrom(address owner, uint amountIn) external override {
-        collateralToken.transferFrom(owner, address(this), amountIn);
+        cToken.transferFrom(owner, address(this), amountIn);
         
         uint amountOut = amountIn * 2;
         
-        dummyToken.transfer(owner, amountOut);
+        dToken.transfer(owner, amountOut);
     }
     
-    // swaps callers collateralToken 1:1 for dummyToken
+    // swaps callers dToken 1:1 for cToken
     function swapDummyToCollateral(uint amount) external override {
-        dummyToken.transferFrom(msg.sender, address(this), amount);
-        collateralToken.transfer(msg.sender, amount);
+        dToken.transferFrom(msg.sender, address(this), amount);
+        cToken.transfer(msg.sender, amount);
     }
     
+    // swaps owner's dToken 1:1 for cToken via allowance
     function swapDummyToCollateralFrom(address owner, uint amount) external override {
-        dummyToken.transferFrom(owner, address(this), amount);
-        collateralToken.transfer(owner, amount);
+        dToken.transferFrom(owner, address(this), amount);
+        cToken.transfer(owner, amount);
     }
     
-    // swaps callers dummyToken 1:1 for collateralToken
+    // swaps callers cToken 1:1 for dToken
     function swapCollateralToDummy(uint amount) external override {
-        collateralToken.transferFrom(msg.sender, address(this), amount);
-        dummyToken.transfer(msg.sender, amount);
+        cToken.transferFrom(msg.sender, address(this), amount);
+        dToken.transfer(msg.sender, amount);
     }
     
+    // swaps owners cToken 1:1 for dToken via allowance
     function swapCollateralToDummyFrom(address owner, uint amount) external override {
-        collateralToken.transferFrom(owner, address(this), amount);
-        dummyToken.transfer(owner, amount);
+        cToken.transferFrom(owner, address(this), amount);
+        dToken.transfer(owner, amount);
     }
     
     // returns the current balance of dummy tokens on the exchange
     function dummyWarchest() external view override returns (uint) {
-        return dummyToken.balanceOf(address(this));
+        return dToken.balanceOf(address(this));
     }
     
     // returns the current amount of collateral tokens on the exchange
     function collateralWarchest() external view override returns (uint) {
-        return collateralToken.balanceOf(address(this));
+        return cToken.balanceOf(address(this));
     }
 }
