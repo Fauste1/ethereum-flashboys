@@ -2,15 +2,16 @@
 
 pragma solidity ^0.8.0;
 
-import './IDummyToken.sol';
+// import './IDummyToken.sol';
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import './IIronBank.sol';
 import './IMyFlashloan.sol';
 
 contract IronBank is IIronBank {
     
     mapping(address => uint) internal _availableCredit;
-    IDummyToken     dummyToken;
-    IDummyToken     collateralToken;
+    ERC20     dummyToken;
+    ERC20     collateralToken;
     IMyFlashloan    flashloan;
     uint            flashloanFeePercentage = 2;
     
