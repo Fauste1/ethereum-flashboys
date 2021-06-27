@@ -21,8 +21,8 @@ contract IronBank is IIronBank {
         address dummyTokenContract_,
         address collateralTokenContract_
     ) {
-        dummyToken = IDummyToken(dummyTokenContract_);
-        collateralToken = IDummyToken(collateralTokenContract_);
+        dummyToken = ERC20(dummyTokenContract_);
+        collateralToken = ERC20(collateralTokenContract_);
     }
     
     
@@ -135,11 +135,6 @@ contract IronBank is IIronBank {
     }
     
     // Internal function to handle loan issuance
-    // function _borrow(address _borrower, uint _amount) internal {
-    //     _availableCredit[_borrower] -= _amount;
-    //     dummyToken.transfer(_borrower, _amount);
-    // }
-    
     function _borrow(address _borrower, uint _amount) internal {
         // reduce the amount of available collateral
         _availableCredit[_borrower] -= _amount;
